@@ -1,0 +1,169 @@
+@page "/initiative"
+@using InitiativeTrackerAssist.Models
+@rendermode InteractiveServer
+
+<PageTitle>Initiative Tracker</PageTitle>
+
+<h1>Initiative Tracker</h1>
+
+<button class="btn btn-primary mb-3" @onclick="NextTurn">Next Turn</button>
+
+<div class="mb-4">
+    <h3>Add New Character</h3>
+    <div class="row g-2">
+        <div class="col-md-3">
+            <label>Name</label>
+            <input class="form-control" @bind="newName" @bind:event="oninput" />
+        </div>
+        <div class="col-md-2">
+            <label>Initiative Value</label>
+            <input type="number" class="form-control" @bind="newInitiative" @bind:event="oninput" />
+        </div>
+        <div class="col-md-1">
+            <label>Current HP</label>
+            <input type="number" class="form-control" @bind="newCurrentHP" @bind:event="oninput" />
+        </div>
+        <div class="col-md-1">
+            <label>Max HP</label>
+            <input type="number" class="form-control" @bind="newMaxHP" @bind:event="oninput" />
+        </div>
+        <div class="col-md-1">
+            <label>Temp HP</label>
+            <input type="number" class="form-control" @bind="newTempHP" @bind:event="oninput" />
+        </div>
+        <div class="col-md-3 d-flex align-items-center">
+            <button class="btn btn-success" @onclick="AddCharacter">Add Character</button>
+        </div>
+    </div>
+</div>
+
+@if (characters.Any())
+{
+    <div class="list-group">
+        @foreach (var c in SortedCharacters)
+        {
+            bool isActive = ReferenceEquals(c, activeCharacter);
+            <details class="mb-2 @(isActive ? "border border-primary active-character" : "")">
+                <summary class="p-2">
+                    <strong>@c.Name</strong> &ndash; Init: @c.Initiative
+                    @if (isActive)
+                    {
+                        <span class="badge bg-primary ms-2">Active</span>
+                    }
+                </summary>
+                <div class="p-2">
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label>Name</label>
+                            <input class="form-control" @bind="c.Name" />
+                        </div>
+                        <div class="col-md-3">
+                            <label>Initiative Value</label>
+                            <input type="number" class="form-control" @bind="c.Initiative" />
+                        </div>
+                        <div class="col-md-3">
+                            <label>Current HP</label>
+                            <input type="number" class="form-control" @bind="c.CurrentHP" />
+                        </div>
+                        <h1>/</h1>
+                        <div class="col-md-3">
+                            <label>Max HP</label>
+                            <input type="number" class="form-control" @bind="c.MaxHP" />
+                        </div>
+                        <div class="col-md-3">
+                            <label>Temp HP</label>
+                            <input type="number" class="form-control" @bind="c.TempHp" />
+                        </div>
+                        <div class="col-md-9">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" @bind="c.Standard" />
+                                <label class="form-check-label">Standard</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" @bind="c.Bonus" />
+                                <label class="form-check-label">Bonus</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" @bind="c.Reaction" />
+                                <label class="form-check-label">Reaction</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </details>
+        }
+    </div>
+}
+else
+{
+    <p>No characters added yet.</p>
+}
+
+@code {
+    private List<Character> characters = new List<Character>();
+    private Character? activeCharacter;
+
+    private string newName = string.Empty;
+    private int newInitiative;
+    private int newMaxHP;
+    private int newCurrentHP;
+    private int newTempHP = 0;
+
+    private IReadOnlyList<Character> SortedCharacters =>
+        characters.OrderByDescending(c => c.Initiative).ToList();
+
+    private void AddCharacter()
+    {
+        if (string.IsNullOrWhiteSpace(newName))
+            return;
+
+        var c = new Character
+        {
+            Name = newName,
+            Initiative = newInitiative,
+            MaxHP = newMaxHP,
+            CurrentHP = newCurrentHP,
+            TempHp = newTempHP,
+        };
+
+        characters.Add(c);
+        if (activeCharacter == null)
+        {
+            activeCharacter = c;
+        }
+
+        // reset form
+        newName = string.Empty;
+        newInitiative = 0;
+        newMaxHP = 0;
+        newCurrentHP = 0;
+        newTempHP = 0;
+
+        // Force component re-render
+        StateHasChanged();
+    }
+
+    private void NextTurn()
+    {
+        if (!characters.Any())
+            return;
+
+        var sorted = SortedCharacters.ToList();
+        if (activeCharacter == null)
+        {
+            activeCharacter = sorted.First();
+            return;
+        }
+
+        int idx = sorted.IndexOf(activeCharacter);
+        if (idx < 0)
+        {
+            // character might have been removed or modified; reset to first
+            activeCharacter = sorted.First();
+            return;
+        }
+
+        int nextIdx = (idx + 1) % sorted.Count;
+        activeCharacter = sorted[nextIdx];
+    }
+}
