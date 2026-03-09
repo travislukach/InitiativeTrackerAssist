@@ -227,8 +227,17 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadCharactersAsync();
+        //await LoadCharactersAsync();
     }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadCharactersAsync();
+            StateHasChanged();
+        }
+    }   
 
     private async Task LoadCharactersAsync()
     {
