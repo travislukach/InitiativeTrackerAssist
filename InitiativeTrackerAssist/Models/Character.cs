@@ -13,21 +13,7 @@ namespace InitiativeTrackerAssist.Models
         public bool Bonus { get; set; }
         public bool Reaction { get; set; }
 
-        //this is going to be jank, but conditions
-        public bool IsBlinded { get; set; }
-        public bool IsCharmed { get; set; }
-        public bool IsDeafened { get; set; }
-        public bool IsFrightened { get; set; }
-        public bool IsGrappled { get; set; }
-        public bool IsIncapacitated { get; set; }
-        public bool IsInvisible { get; set; }
-        public bool IsParalyzed { get; set; }
-        public bool IsPetrified { get; set; }
-        public bool IsPoisoned { get; set; }
-        public bool IsProne { get; set; }
-        public bool IsRestrained { get; set; }
-        public bool IsStunned { get; set; }
-        public bool IsUnconscious { get; set; }
+        public Statuses Statuses { get; set; } = 0;
 
         //exhaustion
         private int _exhaustionLevel;
@@ -48,20 +34,20 @@ namespace InitiativeTrackerAssist.Models
         {
             get
             {
-                if (IsBlinded) yield return "Blinded";
-                if (IsCharmed) yield return "Charmed";
-                if (IsDeafened) yield return "Deafened";
-                if (IsFrightened) yield return "Frightened";
-                if (IsGrappled) yield return "Grappled";
-                if (IsIncapacitated) yield return "Incapacitated";
-                if (IsInvisible) yield return "Invisible";
-                if (IsParalyzed) yield return "Paralyzed";
-                if (IsPetrified) yield return "Petrified";
-                if (IsPoisoned) yield return "Poisoned";
-                if (IsProne) yield return "Prone";
-                if (IsRestrained) yield return "Restrained";
-                if (IsStunned) yield return "Stunned";
-                if (IsUnconscious) yield return "Unconscious";
+                if ((Statuses & Statuses.Blinded) != 0) yield return "Blinded";
+                if ((Statuses & Statuses.Charmed) != 0) yield return "Charmed";
+                if ((Statuses & Statuses.Deafened) != 0) yield return "Deafened";
+                if ((Statuses & Statuses.Frightened) != 0) yield return "Frightened";
+                if ((Statuses & Statuses.Grappled) != 0) yield return "Grappled";
+                if ((Statuses & Statuses.Incapacitated) != 0) yield return "Incapacitated";
+                if ((Statuses & Statuses.Invisible) != 0) yield return "Invisible";
+                if ((Statuses & Statuses.Paralyzed) != 0) yield return "Paralyzed";
+                if ((Statuses & Statuses.Petrified) != 0) yield return "Petrified";
+                if ((Statuses & Statuses.Poisoned) != 0) yield return "Poisoned";
+                if ((Statuses & Statuses.Prone) != 0) yield return "Prone";
+                if ((Statuses & Statuses.Restrained) != 0) yield return "Restrained";
+                if ((Statuses & Statuses.Stunned) != 0) yield return "Stunned";
+                if ((Statuses & Statuses.Unconscious) != 0) yield return "Unconscious";
             }
         }
     }
