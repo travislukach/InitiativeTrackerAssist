@@ -1,6 +1,8 @@
 @page "/initiative"
 @using InitiativeTrackerAssist.Models
+@using System.Text.Json
 @rendermode InteractiveServer
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Initiative Tracker</PageTitle>
 
@@ -31,6 +33,10 @@
             <label>Temp HP</label>
             <input type="number" class="form-control" @bind="newTempHP" @bind:event="oninput" />
         </div>
+        <div class="col-md-1">
+            <label>Armor Class</label>
+            <input type="number" class="form-control" @bind="newArmorClass" @bind:event="oninput" />
+        </div>
         <div class="col-md-3 d-flex align-items-center">
             <button class="btn btn-success" @onclick="AddCharacter">Add Character</button>
         </div>
@@ -45,7 +51,7 @@
             bool isActive = ReferenceEquals(c, activeCharacter);
             <details class="mb-2 @(isActive ? "border border-primary active-character" : "")">
                 <summary class="p-2">
-                    <strong>@c.Name</strong> &ndash; Init: @c.Initiative
+                    <strong>@c.Name</strong> &ndash; Init: @c.Initiative &ndash; AC: @c.ArmorClass
                     @if (isActive)
                     {
                         <span class="badge bg-primary ms-2">Active</span>
@@ -61,18 +67,21 @@
                             <label>Initiative Value</label>
                             <input type="number" class="form-control" @bind="c.Initiative" />
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-1">
                             <label>Current HP</label>
-                            <input type="number" class="form-control" @bind="c.CurrentHP" />
+                            <input type="number" class="form-control" @bind="c.CurrentHP" max="@c.MaxHP" /> 
                         </div>
-                        <h1>/</h1>
-                        <div class="col-md-3">
+                        <div class="col-md-1">
                             <label>Max HP</label>
-                            <input type="number" class="form-control" @bind="c.MaxHP" />
+                            <input type="number" class="form-control" @bind="c.MaxHP" disabled />
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-1">
                             <label>Temp HP</label>
                             <input type="number" class="form-control" @bind="c.TempHp" />
+                        </div>
+                        <div class="col-md-1">
+                            <label>AC</label>
+                            <input type="number" class="form-control" @bind="c.ArmorClass" />
                         </div>
                         <div class="col-md-9">
                             <div class="form-check form-check-inline">
@@ -88,6 +97,109 @@
                                 <label class="form-check-label">Reaction</label>
                             </div>
                         </div>
+                    </div>
+                    <div>
+                        <details class="mt-2">
+                            <summary>
+                                @{ 
+                                    var engaged = c.ActiveStatuses.ToList();
+                                }
+                                @if (engaged.Any())
+                                {
+                                    @string.Join(", ", engaged)
+                                }
+                                else
+                                {
+                                    <em>no statuses...yet.</em>
+                                }
+                            </summary>
+                            <div class="row g-2 mt-1">
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" @bind="c.IsBlinded" />
+                                        <label class="form-check-label">Blinded</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" @bind="c.IsCharmed" />
+                                        <label class="form-check-label">Charmed</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" @bind="c.IsDeafened" />
+                                        <label class="form-check-label">Deafened</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" @bind="c.IsFrightened" />
+                                        <label class="form-check-label">Frightened</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" @bind="c.IsGrappled" />
+                                        <label class="form-check-label">Grappled</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" @bind="c.IsIncapacitated" />
+                                        <label class="form-check-label">Incapacitated</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" @bind="c.IsInvisible" />
+                                        <label class="form-check-label">Invisible</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" @bind="c.IsParalyzed" />
+                                        <label class="form-check-label">Paralyzed</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" @bind="c.IsPetrified" />
+                                        <label class="form-check-label">Petrified</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" @bind="c.IsPoisoned" />
+                                        <label class="form-check-label">Poisoned</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" @bind="c.IsProne" />
+                                        <label class="form-check-label">Prone</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" @bind="c.IsRestrained" />
+                                        <label class="form-check-label">Restrained</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" @bind="c.IsStunned" />
+                                        <label class="form-check-label">Stunned</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" @bind="c.IsUnconscious" />
+                                        <label class="form-check-label">Unconscious</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </details>
                     </div>
                 </div>
             </details>
@@ -108,11 +220,36 @@ else
     private int newMaxHP;
     private int newCurrentHP;
     private int newTempHP = 0;
+    private int newArmorClass;
 
     private IReadOnlyList<Character> SortedCharacters =>
         characters.OrderByDescending(c => c.Initiative).ToList();
 
-    private void AddCharacter()
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCharactersAsync();
+    }
+
+    private async Task LoadCharactersAsync()
+    {
+        var json = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "characters");
+        if (!string.IsNullOrEmpty(json))
+        {
+            characters = JsonSerializer.Deserialize<List<Character>>(json) ?? new List<Character>();
+        }
+        if (characters.Any() && activeCharacter == null)
+        {
+            activeCharacter = SortedCharacters.First();
+        }
+    }
+
+    private async Task SaveCharactersAsync()
+    {
+        var json = JsonSerializer.Serialize(characters);
+        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "characters", json);
+    }
+
+    private async Task AddCharacter()
     {
         if (string.IsNullOrWhiteSpace(newName))
             return;
@@ -124,6 +261,7 @@ else
             MaxHP = newMaxHP,
             CurrentHP = newCurrentHP,
             TempHp = newTempHP,
+            ArmorClass = newArmorClass
         };
 
         characters.Add(c);
@@ -138,6 +276,10 @@ else
         newMaxHP = 0;
         newCurrentHP = 0;
         newTempHP = 0;
+        newArmorClass = 0;
+
+        // Save to file
+        await SaveCharactersAsync();
 
         // Force component re-render
         StateHasChanged();
