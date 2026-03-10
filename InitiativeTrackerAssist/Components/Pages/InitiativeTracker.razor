@@ -17,9 +17,8 @@
         <div class="col-md-1">
             <label>Type</label>
             <select class="form-select" @bind="newCharacterType">
-                <option value="Player">Player</option>
-                <option value="NPC">NPC</option>
-                <option value="Monster">Monster</option>
+                <option value="0">Player</option>
+                <option value="1">NPC</option>
             </select>
         </div>
         <div class="col-md-3">
@@ -39,7 +38,7 @@
             <input type="number" class="form-control" @bind="newMaxHP" @bind:event="oninput" />
         </div>
         <div class="col-md-1">
-            <label>Temp HP</label>
+            <label>Temp HP</label>s
             <input type="number" class="form-control" @bind="newTempHP" @bind:event="oninput" />
         </div>
         <div class="col-md-1">
@@ -60,7 +59,15 @@
             bool isActive = ReferenceEquals(c, activeCharacter);
             <details class="mb-2 @(isActive ? "border border-primary active-character" : "")">
                 <summary class="p-2">
-                    <strong>@c.Name</strong> &ndash; Init: @c.Initiative &ndash; AC: @c.ArmorClass
+                    @if (c.CharacterType == CharacterType.Player)
+                    {
+                        <strong>PC</strong>
+                    }
+                    @if (c.CharacterType == CharacterType.NPC)
+                    {
+                        <strong>NPC</strong>
+                    }
+                    &ndash;<strong>@c.Name</strong> &ndash; Init: @c.Initiative &ndash; AC: @c.ArmorClass
                     @if (isActive)
                     {
                         <span class="badge bg-primary ms-2">Active</span>

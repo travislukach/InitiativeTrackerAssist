@@ -12,6 +12,7 @@ namespace InitiativeTrackerAssist.Models
         public bool Standard { get; set; }
         public bool Bonus { get; set; }
         public bool Reaction { get; set; }
+        public CharacterType CharacterType { get; set; } = CharacterType.Player;
 
         public Statuses Statuses { get; set; } = 0;
 
